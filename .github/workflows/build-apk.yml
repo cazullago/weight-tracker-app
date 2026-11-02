@@ -49,4 +49,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${GITHUB_REF#refs/tags/}" WeightTracker-v1.0.0-debug.apk --title "Weight Tracker ${GITHUB_REF#refs/tags/}" --notes "Android test build. Red high-energy weight tracker: white month calendar, tap any day to log weight in lbs, stats + recent entries, saved on your phone. Debug-signed test build, not a Play Store release."
+        run: gh release create "${GITHUB_REF#refs/tags/}" WeightTracker-v1.0.0-debug.apk --title "Weight Tracker ${GITHUB_REF#refs/tags/}" --notes "Android test build. Red high-energy weight tracker with a white month calendar. Tap any day to log weight in lbs, with stats and recent entries, saved on your phone. Debug-signed test build, not a Play Store release."
