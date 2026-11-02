@@ -1,0 +1,52 @@
+name: Build debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TAR_OPTIONS: --no-same-owner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.5"
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Test
+        run: flutter test
+      - name: Build debug APK
+        run: flutter build apk --debug
+      - name: Rename APK
+        run: cp build/app/outputs/flutter-apk/app-debug.apk WeightTracker-v1.0.0-debug.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: WeightTracker-v1.0.0-debug.apk
+          if-no-files-found: error
+      - name: Publish release (tag builds only)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF#refs/tags/}" WeightTracker-v1.0.0-debug.apk --title "Weight Tracker ${GITHUB_REF#refs/tags/}" --notes "Android test build. Red high-energy weight tracker: white month calendar, tap any day to log weight in lbs, stats + recent entries, saved on your phone. Debug-signed test build, not a Play Store release."
